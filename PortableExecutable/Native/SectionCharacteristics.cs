@@ -1,0 +1,55 @@
+﻿using System;
+
+namespace AncientLunar.PortableExecutable.Native
+{
+    [Flags]
+    public enum SectionCharacteristics : uint
+    {
+        TypeReg = 0U,
+        TypeDSect = 1U,
+        TypeNoLoad = 2U,
+        TypeGroup = 4U,
+        TypeNoPad = 8U,
+        TypeCopy = 16U,
+        ContainsCode = 32U,
+        ContainsInitializedData = 64U,
+        ContainsUninitializedData = 128U,
+        LinkerOther = 256U,
+        LinkerInfo = 512U,
+        TypeOver = 1024U,
+        LinkerRemove = 2048U,
+        LinkerComdat = 4096U,
+        MemProtected = 16384U,
+        NoDeferSpecExc = 16384U,
+        GPRel = 32768U,
+        MemFardata = 32768U,
+        MemSysheap = 65536U,
+        MemPurgeable = 131072U,
+        Mem16Bit = 131072U,
+        MemLocked = 262144U,
+        MemPreload = 524288U,
+        Align1Bytes = 1048576U,
+        Align2Bytes = 2097152U,
+        Align4Bytes = 3145728U,
+        Align8Bytes = 4194304U,
+        Align16Bytes = 5242880U,
+        Align32Bytes = 6291456U,
+        Align64Bytes = 7340032U,
+        Align128Bytes = 8388608U,
+        Align256Bytes = 9437184U,
+        Align512Bytes = 10485760U,
+        Align1024Bytes = 11534336U,
+        Align2048Bytes = 12582912U,
+        Align4096Bytes = 13631488U,
+        Align8192Bytes = 14680064U,
+        AlignMask = 15728640U,
+        LinkerNRelocOvfl = 16777216U,
+        MemDiscardable = 33554432U,
+        MemNotCached = 67108864U,
+        MemNotPaged = 134217728U,
+        MemShared = 268435456U,
+        MemExecute = 536870912U,
+        MemRead = 1073741824U,
+        MemWrite = 2147483648U
+    }
+}

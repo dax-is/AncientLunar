@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{79930BD0-6C68-4E64-8072-12F38F7EB30F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AncientLunar</RootNamespace>
+    <AssemblyName>AncientLunar</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Extensions\EnumeratorMax.cs" />
+    <Compile Include="Extensions\NtStatusExtensions.cs" />
+    <Compile Include="Extensions\ProcessExtensions.cs" />
+    <Compile Include="FileResolution\ActivationContext.cs" />
+    <Compile Include="FileResolution\ApiSetMap.cs" />
+    <Compile Include="FileResolution\FileResolver.cs" />
+    <Compile Include="FileResolution\Structs\ManifestDirectory.cs" />
+    <Compile Include="Helpers\ArraySegmentExtensions.cs" />
+    <Compile Include="Helpers\DumbConvert.cs" />
+    <Compile Include="Helpers\Executor.cs" />
+    <Compile Include="Helpers\MemoryMarshal.cs" />
+    <Compile Include="Helpers\Wow64.cs" />
+    <Compile Include="Interop\Architecture.cs" />
+    <Compile Include="Lunar.cs" />
+    <Compile Include="MappingFlags.cs" />
+    <Compile Include="Native\Constants.cs" />
+    <Compile Include="Native\Enums\AllocationType.cs" />
+    <Compile Include="Native\Enums\DllReason.cs" />
+    <Compile Include="Native\Enums\FreeType.cs" />
+    <Compile Include="Native\Enums\ModuleType.cs" />
+    <Compile Include="Native\Enums\NtStatus.cs" />
+    <Compile Include="Native\Enums\ProcessInfoClass.cs" />
+    <Compile Include="Native\Enums\ProtectionType.cs" />
+    <Compile Include="Native\Enums\RelocationType.cs" />
+    <Compile Include="Native\Enums\SymbolOptions.cs" />
+    <Compile Include="Native\PInvoke\Dbghelp.cs" />
+    <Compile Include="Native\PInvoke\Ntdll.cs" />
+    <Compile Include="Native\Structs\ApiSetHashEntry.cs" />
+    <Compile Include="Native\Structs\ApiSetNamespace.cs" />
+    <Compile Include="Native\Structs\ApiSetNamespaceEntry.cs" />
+    <Compile Include="Native\Structs\ApiSetValueEntry.cs" />
+    <Compile Include="Native\Structs\ImageBaseRelocation.cs" />
+    <Compile Include="Native\Structs\ImageExportDirectory.cs" />
+    <Compile Include="Native\Structs\ImageImportDescriptor.cs" />
+    <Compile Include="Native\Structs\ImageResourceDataEntry.cs" />
+    <Compile Include="Native\Structs\ImageResourceDirectory.cs" />
+    <Compile Include="Native\Structs\ImageResourceDirectoryEntry.cs" />
+    <Compile Include="Native\Structs\ImageTlsDirectory.cs" />
+    <Compile Include="Native\Structs\LdrDataTableEntry.cs" />
+    <Compile Include="Native\Structs\ListEntry.cs" />
+    <Compile Include="Native\Structs\ModuleEntry.cs" />
+    <Compile Include="Native\Structs\Peb.cs" />
+    <Compile Include="Native\Structs\PebLdrData.cs" />
+    <Compile Include="Native\Structs\ProcessBasicInformation.cs" />
+    <Compile Include="Native\Structs\SymbolInfo.cs" />
+    <Compile Include="Native\Structs\Teb.cs" />
+    <Compile Include="Native\Structs\UnicodeString.cs" />
+    <Compile Include="PortableExecutable\DataDirectories\ExportDirectory.cs" />
+    <Compile Include="PortableExecutable\DataDirectories\ImportDirectory.cs" />
+    <Compile Include="PortableExecutable\DataDirectories\RelocationDirectory.cs" />
+    <Compile Include="PortableExecutable\DataDirectories\ResourceDirectory.cs" />
+    <Compile Include="PortableExecutable\DataDirectories\TlsDirectory.cs" />
+    <Compile Include="PortableExecutable\DataDirectoryBase.cs" />
+    <Compile Include="PortableExecutable\Native\Characteristics.cs" />
+    <Compile Include="PortableExecutable\Native\CodeViewDebugDirectoryData.cs" />
+    <Compile Include="PortableExecutable\Native\CoffHeader.cs" />
+    <Compile Include="PortableExecutable\Native\CorFlags.cs" />
+    <Compile Include="PortableExecutable\Native\CorHeader.cs" />
+    <Compile Include="PortableExecutable\Native\DebugDirectoryEntry.cs" />
+    <Compile Include="PortableExecutable\Native\DebugDirectoryEntryType.cs" />
+    <Compile Include="PortableExecutable\Native\DirectoryEntry.cs" />
+    <Compile Include="PortableExecutable\Native\DllCharacteristics.cs" />
+    <Compile Include="PortableExecutable\Native\Machine.cs" />
+    <Compile Include="PortableExecutable\Native\PEHeader.cs" />
+    <Compile Include="PortableExecutable\Native\PEHeaders.cs" />
+    <Compile Include="PortableExecutable\Native\PEMagic.cs" />
+    <Compile Include="PortableExecutable\Native\PEReader.cs" />
+    <Compile Include="PortableExecutable\Native\PEBinaryReader.cs" />
+    <Compile Include="PortableExecutable\Native\SectionCharacteristics.cs" />
+    <Compile Include="PortableExecutable\Native\SectionHeader.cs" />
+    <Compile Include="PortableExecutable\Native\Subsystem.cs" />
+    <Compile Include="PortableExecutable\PEImage.cs" />
+    <Compile Include="PortableExecutable\Structs\ExportedFunction.cs" />
+    <Compile Include="PortableExecutable\Structs\ImportDescriptor.cs" />
+    <Compile Include="PortableExecutable\Structs\ImportedFunction.cs" />
+    <Compile Include="PortableExecutable\Structs\Relocation.cs" />
+    <Compile Include="PortableExecutable\Structs\TlsCallback.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Remote\ProcessContext.cs" />
+    <Compile Include="Remote\Structs\Module.cs" />
+    <Compile Include="Remote\Structs\ModuleInfo.cs" />
+    <Compile Include="Shellcode\Assembler.cs" />
+    <Compile Include="Shellcode\Structs\CallDescriptor.cs" />
+    <Compile Include="SymbolResolution\SymbolDownloader.cs" />
+    <Compile Include="SymbolResolution\SymbolLookup.cs" />
+    <Compile Include="Helpers\StreamExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Native\PInvoke\Kernel32.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
