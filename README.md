@@ -8,4 +8,4 @@ This is achieved by using a [Heaven's Gate](https://0xk4n3ki.github.io/posts/Hea
 
 Here's where the Heaven's Gate comes into play, since if we transition to x64, we can call `RtlCreateUserThread` from the 64-bit version of ntdll.dll, which is also loaded by wow64 processes. The address for this function can be found by enumerating the loaded modules from the 64-bit PEB.
 
-To locate the 64-bit PEB, we could do some magic to first locate the current thread's 64-bit TEB (yes I stole the code and I do not remember from where), but you could also just call `NtWow64QueryInformationProcess64` and get the PEB address from that. Then it's just a matter of using `NtWow64ReadVirtualMemory` to read the PEB_LDR_DATA until you hit `ntdll.dll`.
+To locate the 64-bit PEB, we could do some magic to first locate the current thread's 64-bit TEB (yes I stole the code and I do not remember from where), but you could also just call `NtWow64QueryInformationProcess64` and get the PEB address from that. Then it's just a matter of using `NtWow64ReadVirtualMemory64` to read the PEB_LDR_DATA until you hit `ntdll.dll`.
