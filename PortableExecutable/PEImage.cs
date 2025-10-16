@@ -22,8 +22,8 @@ namespace AncientLunar.PortableExecutable
                 if (reader.PEHeaders.PEHeader is null || !reader.PEHeaders.IsDll)
                     throw new Exception("The provided file was not a valid DLL");
 
-                ExportDirectory = new ExportDirectory(imageBytes, reader.PEHeaders);
                 Headers = reader.PEHeaders;
+                ExportDirectory = new ExportDirectory(imageBytes, reader.PEHeaders);
                 ImportDirectory = new ImportDirectory(imageBytes, reader.PEHeaders);
                 RelocationDirectory = new RelocationDirectory(imageBytes, reader.PEHeaders);
                 ResourceDirectory = new ResourceDirectory(imageBytes, reader.PEHeaders);

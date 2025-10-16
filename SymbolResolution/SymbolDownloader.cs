@@ -1,8 +1,6 @@
-﻿using AncientLunar.Extensions;
-using AncientLunar.Interop;
+﻿using AncientLunar.Interop;
 using AncientLunar.PortableExecutable.Native;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;

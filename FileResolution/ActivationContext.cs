@@ -33,7 +33,8 @@ namespace AncientLunar.FileResolution
             var elementName2 = @namespace + "dependentAssembly";
             var elementName3 = @namespace + "assemblyIdentity";
 
-            foreach (var dependency in _manifest.Descendants(elementName1).Elements(elementName2).Elements(elementName3))
+            foreach (var dependency in _manifest.Descendants(elementName1).Elements(elementName2)
+                         .Elements(elementName3))
             {
                 // Parse the dependency attributes
                 var architecture = dependency.Attribute("processorArchitecture")?.Value;
@@ -57,11 +58,17 @@ namespace AncientLunar.FileResolution
                 if (!_directoryCache.Contains(dependencyHash))
                     continue;
 
-                var matchingDirectories = _directoryCache[dependencyHash].Where(directory => directory.Language.Equals(language, StringComparison.OrdinalIgnoreCase));
+                var matchingDirectories = _directoryCache[dependencyHash].Where(directory =>
+                    directory.Language.Equals(language, StringComparison.OrdinalIgnoreCase));
 
                 // Search for the directory that holds the dependency
                 var dependencyVersion = new Version(version);
-                var matchingDirectory = (dependencyVersion.Build == 0 && dependencyVersion.Revision == 0) ? matchingDirectories.Where(directory => directory.Version.Major == dependencyVersion.Major && directory.Version.Minor == dependencyVersion.Minor).MaxBy(directory => directory.Version) : matchingDirectories.FirstOrDefault(directory => directory.Version == dependencyVersion);
+                var matchingDirectory = dependencyVersion.Build == 0 && dependencyVersion.Revision == 0
+                    ? matchingDirectories
+                        .Where(directory =>
+                            directory.Version.Major == dependencyVersion.Major &&
+                            directory.Version.Minor == dependencyVersion.Minor).MaxBy(directory => directory.Version)
+                    : matchingDirectories.FirstOrDefault(directory => directory.Version == dependencyVersion);
 
                 if (matchingDirectory.Hash == 0)
                     continue;
@@ -77,17 +84,21 @@ namespace AncientLunar.FileResolution
 
         private static IEnumerable<ManifestDirectory> GetManifestDirectories(Architecture architecture)
         {
-            var sxsDirectory = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "..\\WinSxS"));
+            var sxsDirectory =
+                new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),
+                    "..\\WinSxS"));
             var directoryPrefix = architecture == Architecture.X86 ? "x86" : "amd64";
 
-            foreach (var directory in sxsDirectory.GetDirectories().Where(directory => directory.Name.StartsWith(directoryPrefix)))
+            foreach (var directory in sxsDirectory.GetDirectories()
+                         .Where(directory => directory.Name.StartsWith(directoryPrefix)))
             {
                 var nameComponents = directory.Name.Split('_');
                 var language = nameComponents[nameComponents.Length - 2];
                 var version = new Version(nameComponents[nameComponents.Length - 3]);
 
                 // Hash the directory name without the version, language and hash
-                var directoryHash = string.Join(string.Empty, nameComponents.Take(nameComponents.Length - 3).ToArray()).GetHashCode();
+                var directoryHash = string.Join(string.Empty, nameComponents.Take(nameComponents.Length - 3).ToArray())
+                    .GetHashCode();
 
                 yield return new ManifestDirectory(directory.FullName, directoryHash, language, version);
             }

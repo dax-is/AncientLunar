@@ -1,5 +1,4 @@
 ﻿using AncientLunar.Native.Enums;
-using AncientLunar.Native.Structs;
 using System;
 using System.Runtime.InteropServices;
 

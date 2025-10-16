@@ -3,7 +3,7 @@
 namespace AncientLunar.Native.Enums
 {
     [Flags]
-    internal enum ProtectionType
+    public enum ProtectionType
     {
         NoAccess = 0x1,
         ReadOnly = 0x2,

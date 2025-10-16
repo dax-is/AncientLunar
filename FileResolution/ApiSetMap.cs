@@ -22,7 +22,8 @@ namespace AncientLunar.FileResolution
 
             // Hash the API set without the patch number and suffix
             var charactersToHash = new string(apiSet.Take(apiSet.LastIndexOf('-')).ToArray());
-            var apiSetHash = charactersToHash.Aggregate(0, (currentHash, character) => currentHash * @namespace.HashFactor + char.ToLower(character));
+            var apiSetHash = charactersToHash.Aggregate(0,
+                (currentHash, character) => currentHash * @namespace.HashFactor + char.ToLower(character));
 
             // Search the namespace for the corresponding hash entry
             var low = 0;

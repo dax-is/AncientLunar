@@ -37,7 +37,7 @@ namespace AncientLunar.PortableExecutable.DataDirectories
                 // Read the second level resource entry
                 var secondLevelEntryOffset = baseEntryOffset + (firstLevelEntry.OffsetToData & int.MaxValue);
                 var secondLevelEntry = MemoryMarshal.Read<ImageResourceDirectoryEntry>(ImageBytes.GetRange(secondLevelEntryOffset));
-
+                
                 if (secondLevelEntry.Id != Constants.DllManifestId)
                     continue;
 

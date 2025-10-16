@@ -55,6 +55,12 @@ namespace AncientLunar
             _mappingFlags = mappingFlags;
             _peImage = new PEImage(new ArraySegment<byte>(dllBytes));
             _processContext = new ProcessContext(process);
+
+            if (_peImage.Headers.PEHeader.Magic == PEMagic.PE32 && _processContext.Architecture != Architecture.X86)
+                throw new InvalidOperationException("The provided DLL architecture does not match process architecture");
+
+            if (_peImage.Headers.PEHeader.Magic == PEMagic.PE32Plus && _processContext.Architecture != Architecture.X64)
+                throw new InvalidOperationException("The provided DLL architecture does not match process architecture");
         }
 
         /// <summary>
@@ -75,6 +81,12 @@ namespace AncientLunar
             _mappingFlags = mappingFlags;
             _peImage = new PEImage(_dllBytes);
             _processContext = new ProcessContext(process);
+
+            if (_peImage.Headers.PEHeader.Magic == PEMagic.PE32 && _processContext.Architecture != Architecture.X86)
+                throw new InvalidOperationException("The provided DLL architecture does not match process architecture");
+
+            if (_peImage.Headers.PEHeader.Magic == PEMagic.PE32Plus && _processContext.Architecture != Architecture.X64)
+                throw new InvalidOperationException("The provided DLL architecture does not match process architecture");
         }
 
         /// <summary>
@@ -205,17 +217,22 @@ namespace AncientLunar
         /// <summary>
         /// Get the absolute address of a function in the mapped library
         /// </summary>
-        public IntPtr GetProcAddress(string functionName)
+        public ulong GetProcAddress(string functionName)
         {
             if (DllBaseAddress == IntPtr.Zero)
-                return IntPtr.Zero;
+                return 0;
 
             var function = _peImage.ExportDirectory.GetExportedFunction(functionName);
             if (!function.HasValue)
-                return IntPtr.Zero;
+                return 0;
 
-            return (IntPtr)((ulong)DllBaseAddress + (ulong)function.Value.RelativeAddress);
+            return (ulong)DllBaseAddress + (ulong)function.Value.RelativeAddress;
         }
+
+        /// <summary>
+        /// Get the remote process context of the process that is being mapped into
+        /// </summary>
+        public ProcessContext GetContext() => _processContext;
 
         private void AllocateImage()
         {
@@ -332,8 +349,26 @@ namespace AncientLunar
 
         private void InsertExceptionHandlers()
         {
-            if (!_processContext.CallRoutine<bool>(_processContext.GetNtdllSymbolAddress("RtlInsertInvertedFunctionTable"), CallingConvention.FastCall, DllBaseAddress, _peImage.Headers.PEHeader.SizeOfImage))
-                throw new ApplicationException("Failed to insert exception handlers");
+            if (_processContext.Architecture == Architecture.X64)
+            {
+                // Insert using RtlAddFunctionTable
+                var exceptTable = _peImage.Headers.PEHeader.ExceptionTableDirectory;
+                var functionTable = (IntPtr)(DllBaseAddress.ToInt32() + exceptTable.RelativeVirtualAddress);
+                var functionTableSize = exceptTable.Size / 12;  /* exceptTable.size / sizeof(RUNTIME_FUNCTION) */
+
+                if (!_processContext.CallRoutine<bool>(_processContext.GetNtdllSymbolAddress("RtlAddFunctionTable"),
+                        CallingConvention.FastCall, functionTable, functionTableSize, DllBaseAddress))
+                    throw new ApplicationException("Failed to insert exception handlers");
+            }
+            else
+            {
+                // Insert using RtlInsertInvertedFunctionTable
+                if (!_processContext.CallRoutine<bool>(
+                        _processContext.GetNtdllSymbolAddress("RtlInsertInvertedFunctionTable"),
+                        CallingConvention.FastCall,
+                        DllBaseAddress, _peImage.Headers.PEHeader.SizeOfImage))
+                    throw new ApplicationException("Failed to insert exception handlers");
+            }
         }
 
         private void LoadDependencies()
@@ -365,7 +400,11 @@ namespace AncientLunar
                     {
                         _processContext.GetModule(moduleName, null);
                         continue;
-                    } catch { }
+                    }
+                    catch
+                    {
+                        // Module isn't loaded yet
+                    }
 
                     LoadDependency(moduleName, activationContext);
                 }
@@ -475,7 +514,7 @@ namespace AncientLunar
                         continue;
 
                     var relocationValue = MemoryMarshal.Read<ulong>(_dllBytes.GetRange(relocation.Offset)) + delta;
-
+                    
                     MemoryMarshal.Write(_dllBytes, in relocationValue, relocation.Offset);
                 }
             }
@@ -494,8 +533,21 @@ namespace AncientLunar
 
         private void RemoveExceptionHandlers()
         {
-            if (!_processContext.CallRoutine<bool>(_processContext.GetNtdllSymbolAddress("RtlRemoveInvertedFunctionTable"), CallingConvention.FastCall, DllBaseAddress))
-                throw new ApplicationException("Failed to remove exception handlers");
+            if (_processContext.Architecture == Architecture.X64)
+            {
+                var exceptTable = _peImage.Headers.PEHeader.ExceptionTableDirectory;
+                var functionTable = (IntPtr)(DllBaseAddress.ToInt32() + exceptTable.RelativeVirtualAddress);
+
+                if (!_processContext.CallRoutine<bool>(_processContext.GetNtdllSymbolAddress("RtlDeleteFunctionTable"), CallingConvention.FastCall, functionTable))
+                    throw new ApplicationException("Failed to insert exception handlers");
+            }
+            else
+            {
+                if (!_processContext.CallRoutine<bool>(
+                        _processContext.GetNtdllSymbolAddress("RtlRemoveInvertedFunctionTable"),
+                        CallingConvention.FastCall, DllBaseAddress))
+                    throw new ApplicationException("Failed to remove exception handlers");
+            }
         }
     }
 }

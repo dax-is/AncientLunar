@@ -2,10 +2,8 @@
 using AncientLunar.FileResolution;
 using AncientLunar.Helpers;
 using AncientLunar.Interop;
-using AncientLunar.Native;
 using AncientLunar.Native.Enums;
 using AncientLunar.Native.PInvoke;
-using AncientLunar.Native.Structs;
 using AncientLunar.PortableExecutable;
 using AncientLunar.PortableExecutable.Structs;
 using AncientLunar.Remote.Structs;
@@ -18,11 +16,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace AncientLunar.Remote
 {
-    internal class ProcessContext
+    public class ProcessContext
     {
         internal Architecture Architecture { get; }
         internal Process Process { get; }
@@ -31,7 +28,7 @@ namespace AncientLunar.Remote
         private readonly Dictionary<string, Module> _moduleCache;
         private readonly SymbolLookup _symbolLookup;
 
-        internal ProcessContext(Process process)
+        public ProcessContext(Process process)
         {
             _apiSetMap = new ApiSetMap();
             _moduleCache = new Dictionary<string, Module>(StringComparer.OrdinalIgnoreCase);
@@ -41,7 +38,7 @@ namespace AncientLunar.Remote
             Process = process;
         }
 
-        internal void CallRoutine(ulong routineAddress, CallingConvention callingConvention, params object[] arguments)
+        public void CallRoutine(ulong routineAddress, CallingConvention callingConvention, params object[] arguments)
         {
             ArraySegment<byte> shellcodeBytes;
 
@@ -58,7 +55,7 @@ namespace AncientLunar.Remote
             ExecuteShellcode(shellcodeBytes);
         }
 
-        internal unsafe T CallRoutine<T>(ulong routineAddress, CallingConvention callingConvention, params object[] arguments)
+        public unsafe T CallRoutine<T>(ulong routineAddress, CallingConvention callingConvention, params object[] arguments)
             where T : unmanaged
         {
             var returnSize = typeof(T) == typeof(IntPtr) ? Architecture == Architecture.X86 ? sizeof(int) : sizeof(long) : sizeof(T);
@@ -94,7 +91,7 @@ namespace AncientLunar.Remote
             }
         }
 
-        internal unsafe ulong CallRoutinePointerWidth(ulong routineAddress, CallingConvention callingConvention, params object[] arguments)
+        public ulong CallRoutinePointerWidth(ulong routineAddress, CallingConvention callingConvention, params object[] arguments)
         {
             var returnSize = Architecture == Architecture.X86 ? sizeof(int) : sizeof(long);
             var returnAddress = Process.AllocateBuffer(returnSize, ProtectionType.ReadWrite);
@@ -131,7 +128,7 @@ namespace AncientLunar.Remote
             _moduleCache.Clear();
         }
 
-        internal ulong GetFunctionAddress(string moduleName, string functionName)
+        public ulong GetFunctionAddress(string moduleName, string functionName)
         {
             var module = GetModule(moduleName, null);
             var function = module.PEImage.ExportDirectory.GetExportedFunction(functionName);
@@ -142,7 +139,7 @@ namespace AncientLunar.Remote
             return function.Value.ForwarderString == null ? (module.Address + (ulong)function.Value.RelativeAddress) : ResolveForwardedFunction(function.Value.ForwarderString, null);
         }
 
-        internal ulong GetFunctionAddress(string moduleName, int functionOrdinal)
+        public ulong GetFunctionAddress(string moduleName, int functionOrdinal)
         {
             var module = GetModule(moduleName, null);
             var function = module.PEImage.ExportDirectory.GetExportedFunction(functionOrdinal);
@@ -225,7 +222,7 @@ namespace AncientLunar.Remote
                 return module;
 
             // Query the process for its module address list
-            foreach (var mod in EnumModules())
+            foreach (var mod in Process.EnumModules())
             {
                 var moduleFilePath = mod.FileName;
 
@@ -244,79 +241,6 @@ namespace AncientLunar.Remote
             }
 
             throw new ApplicationException($"Failed to find the module {moduleName.ToLower()} in the process");
-        }
-
-        private IEnumerable<ModuleInfo> EnumModules()
-        {
-            if (Process.GetCurrentProcess().GetArchitecture() == Process.GetArchitecture())
-            { 
-                foreach (ProcessModule mod in Process.Modules)
-                    yield return new ModuleInfo((ulong)mod.BaseAddress, mod.FileName);
-
-                yield break;
-            }
-
-            if (Process.GetCurrentProcess().GetArchitecture() == Architecture.X64)
-            { 
-                foreach (var mod in EnumModulesX86())
-                    yield return mod;
-
-                yield break;
-            }
-
-            if (Process.GetCurrentProcess().IsEmulating64() && !Process.IsEmulating64())
-            {
-                foreach (var mod in EnumModulesWow64())
-                    yield return mod;
-
-                yield break;
-            }
-
-            foreach (ProcessModule mod in Process.Modules)
-                yield return new ModuleInfo((ulong)mod.BaseAddress, mod.FileName);
-        }
-
-        private IEnumerable<ModuleInfo> EnumModulesWow64()
-        {
-            var pbi = new ProcessBasicInformation64();
-            var status = Ntdll.NtWow64QueryInformationProcess64(Process.Handle, ProcessInfoClass.ProcessBasicInformation, ref pbi, Marshal.SizeOf(typeof(ProcessBasicInformation64)), IntPtr.Zero);
-            if (!status.IsSuccess())
-                throw new Win32Exception(Ntdll.RtlNtStatusToDosError(status));
-
-            foreach (var mod in Wow64.EnumModules(Process, pbi.PebBaseAddress))
-                yield return mod;
-        }
-
-        private IEnumerable<ModuleInfo> EnumModulesX86()
-        {
-            var moduleAddressListBytes = new byte[8];
-
-            if (!Kernel32.EnumProcessModulesEx(Process.Handle, moduleAddressListBytes, moduleAddressListBytes.Length, out var sizeNeeded, ModuleType.X86))
-                throw new Win32Exception();
-
-            if (sizeNeeded > moduleAddressListBytes.Length)
-            {
-                // Reallocate the module address buffer
-                moduleAddressListBytes = new byte[sizeNeeded];
-
-                if (!Kernel32.EnumProcessModulesEx(Process.Handle, moduleAddressListBytes, moduleAddressListBytes.Length, out sizeNeeded, ModuleType.X86))
-                    throw new Win32Exception();
-            }
-
-            // Buffer for storing module path
-            var moduleFilePathBytes = new byte[Encoding.Unicode.GetMaxByteCount(Constants.MaxPath)];
-
-            foreach (var address in MemoryMarshal.AllocCast<byte, IntPtr>(moduleAddressListBytes))
-            {
-                if (!Kernel32.GetModuleFileNameEx(Process.Handle, address, moduleFilePathBytes, Encoding.Unicode.GetCharCount(moduleFilePathBytes)))
-                    throw new Win32Exception();
-
-                var moduleFilePath = Encoding.Unicode.GetString(moduleFilePathBytes).TrimEnd('\0');
-
-                yield return new ModuleInfo((ulong)address, moduleFilePath);
-
-                Array.Clear(moduleFilePathBytes, 0, moduleFilePathBytes.Length);
-            }
         }
 
         private ulong ResolveForwardedFunction(string forwarderString, string parentName)

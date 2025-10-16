@@ -7,10 +7,10 @@ namespace AncientLunar.Helpers
     {
         internal static int GetAndValidateSize(Stream stream, int size, string streamParameterName)
         {
-            long num = stream.Length - stream.Position;
+            var num = stream.Length - stream.Position;
             if (size < 0 || size > num)
             {
-                throw new ArgumentOutOfRangeException("size");
+                throw new ArgumentOutOfRangeException(nameof(size));
             }
             if (size != 0)
             {

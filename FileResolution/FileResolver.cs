@@ -1,6 +1,5 @@
 ﻿using AncientLunar.Extensions;
 using AncientLunar.Interop;
-using AncientLunar.Native.PInvoke;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -73,7 +72,7 @@ namespace AncientLunar.FileResolution
             if (File.Exists(currentDirectoryFilePath))
                 return currentDirectoryFilePath;
 
-            // Search the directories liste din the PATH environment variable
+            // Search the directories listed in the PATH environment variable
             return Environment.GetEnvironmentVariable("PATH").Split(';').Where(Directory.Exists).Select(directory => Path.Combine(directory, fileName)).FirstOrDefault(File.Exists);
         }
     }

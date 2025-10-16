@@ -28,10 +28,10 @@ namespace AncientLunar.PortableExecutable.Native
         internal PEReader(Stream peStream, bool leaveOpen = false)
         {
             if (peStream == null)
-                throw new ArgumentNullException("peStream");
+                throw new ArgumentNullException(nameof(peStream));
 
             if (!peStream.CanRead || !peStream.CanSeek)
-                throw new ArgumentException("Stream must be readable and seekable", "peSeek");
+                throw new ArgumentException("Stream must be readable and seekable", nameof(peStream));
 
             _imageSize = StreamExtensions.GetAndValidateSize(peStream, 0, nameof(peStream));
             _imageStart = peStream.Position;

@@ -113,7 +113,7 @@ namespace AncientLunar.PortableExecutable.Native
                 if (BitConverter.IsLittleEndian)
                     return *(Guid*)raw;
 
-                return new Guid((int)(*raw) | ((int)raw[1] << 8) | ((int)raw[2] << 16) | ((int)raw[3] << 24), (short)((int)raw[4] | ((int)raw[5] << 8)), (short)((int)raw[6] | ((int)raw[7] << 8)), raw[8], raw[9], raw[10], raw[11], raw[12], raw[13], raw[14], raw[15]);
+                return new Guid(*raw | (raw[1] << 8) | (raw[2] << 16) | (raw[3] << 24), (short)(raw[4] | (raw[5] << 8)), (short)(raw[6] | (raw[7] << 8)), raw[8], raw[9], raw[10], raw[11], raw[12], raw[13], raw[14], raw[15]);
             }
         }
 
