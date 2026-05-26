@@ -76,10 +76,10 @@ namespace AncientLunar
 
             var dllBytes = File.ReadAllBytes(dllFilePath);
 
-            _dllBytes = new ArraySegment<byte>(dllBytes);
+            _dllBytes = new ArraySegment<byte>((byte[])dllBytes.Clone());
             _fileResolver = new FileResolver(process, Path.GetDirectoryName(dllFilePath));
             _mappingFlags = mappingFlags;
-            _peImage = new PEImage(_dllBytes);
+            _peImage = new PEImage(new ArraySegment<byte>(dllBytes));
             _processContext = new ProcessContext(process);
 
             if (_peImage.Headers.PEHeader.Magic == PEMagic.PE32 && _processContext.Architecture != Architecture.X86)
